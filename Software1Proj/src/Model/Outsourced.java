@@ -6,6 +6,8 @@
 package Model;
 
 /**
+ * This Class represents a Outsourced part used in the creation of a product object, both used within the Inventory
+ * System application.
  *
  * @author matt
  */
@@ -17,10 +19,21 @@ public class Outsourced extends Part {
         this.companyName = companyName;
     }
 
+
+    /**
+     * This function returns the company name that the part created by.
+     *
+     * @return String
+     */
     public String getCompanyName() {
         return companyName;
     }
 
+    /**
+     * This function sets the company name member variable within the Outsourced part object.
+     *
+     * @param companyName
+     */
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }

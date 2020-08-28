@@ -118,6 +118,12 @@ public class ModifyProductController implements Initializable {
         initializeData();
     }
 
+    /**
+     * This function adds a part selected from the table with all parts in it, and adds it to the table with the parts
+     * associated with the current product instance.
+     *
+     * @param event
+     */
     @FXML
     void addPart(MouseEvent event) {
         // If no part is selected to become an associated part....
@@ -140,6 +146,13 @@ public class ModifyProductController implements Initializable {
         }
     }
 
+    /**
+     * This function cancels modifying a product from the inventory. The user is prompted if they are SURE they
+     * want to cancel modifying the product and potentially lose their data. If they are sure they want to cancel they
+     * are redirected to the Main Screen page.
+     *
+     * @param event
+     */
     @FXML
     void cancelModifyProduct(MouseEvent event) {
         // Verify that a user wants to cancel modifying the selected product
@@ -168,6 +181,13 @@ public class ModifyProductController implements Initializable {
 
     }
 
+    /**
+     * This function removes a part from the table with the parts associated with the current product. It also verifies
+     * whether the user actually wants to delete the selected part. If they do the part is removed and the table is
+     * refreshed to display the current state of data.
+     *
+     * @param event
+     */
     @FXML
     void removeAssociatedPart(MouseEvent event) {
         // If a part is not selected, let the user know
@@ -194,9 +214,16 @@ public class ModifyProductController implements Initializable {
         }
     }
 
+    /**
+     * This function saves the modified product to the inventory object. The values in the text boxes are added to
+     * temporary variables, and those variables are tested to determine if the data entered is valid or not. If it is all valid,
+     * the data is set to the member variables of the product object, and then is passed to the allProducts list in
+     * the inventory object. The user is then redirected to the Main Screen.
+     *
+     * @param event
+     */
     @FXML
     void saveModifyProduct(MouseEvent event) {
-        // inventory.updateProduct(product)
         // Create temp variables for validation
         int tempId = Integer.parseInt(modifyProductIdTextBox.getText());
         String tempName = modifyProductNameTextBox.getText().trim();
@@ -248,7 +275,8 @@ public class ModifyProductController implements Initializable {
         } else if (Integer.parseInt(tempInv) < Integer.parseInt(tempMin)) {
             validationErrorAlert.setContentText("The inventory cannot be less than the minimum number of products.");
             validationErrorAlert.show();
-        } else if (Integer.parseInt(tempInv) < 0 || Integer.parseInt(tempMax) < 0 || Integer.parseInt(tempMin) < 0 || Double.parseDouble(tempPrice) < 0.00) {
+        } else if (Integer.parseInt(tempInv) < 0 || Integer.parseInt(tempMax) < 0 || Integer.parseInt(tempMin) < 0 ||
+                Double.parseDouble(tempPrice) < 0.00) {
             validationErrorAlert.setContentText("None of the values entered can be less than 0.");
             validationErrorAlert.show();
         } else if (Integer.parseInt(tempMax) < Integer.parseInt(tempMin)) {
@@ -286,20 +314,36 @@ public class ModifyProductController implements Initializable {
 
     }
 
+
+    /**
+     * This function displays all the parts if the search button is pressed and the text box is empty. If the text box
+     * has letters in it, the string is searched and the parts table is loaded with the results of the search.
+     * @param event
+     */
     @FXML
     void searchParts(MouseEvent event) {
         // If nothing is entered and search button is pressed, generate the parts table
         if(modifyProductPartSearchBar.getText() == "") { generatePartsTable(); }
+
         // Search partInventory for part by name
         else {
-            nonAssociatedPartsList.setAll(inventory.lookupPart(modifyProductPartSearchBar.getText()));
+            try {
+                nonAssociatedPartsList.setAll(inventory.lookupPart(modifyProductPartSearchBar.getText()));
 
-            // Load the tableview with data from the tempInventory
-            modifyProductAddPartTable.setItems(nonAssociatedPartsList);
-            modifyProductAddPartTable.refresh();
+                // Load the tableview with data from the tempInventory
+                modifyProductAddPartTable.setItems(nonAssociatedPartsList);
+                modifyProductAddPartTable.refresh();
+            } catch (NullPointerException e) {
+                System.out.println(e + " is thrown because there is no part with that name.");
+            }
+
         }
     }
 
+    /**
+     * This function initializes the text boxes with the data from the product that was passed to the Modify Product
+     * Controller. It also generates the Parts and Associated Parts tables.
+     */
     void initializeData() {
 
         // Set the product text boxes to their respective data
@@ -317,6 +361,11 @@ public class ModifyProductController implements Initializable {
         generateAssociatedPartsTable();
     }
 
+    /**
+     * This function fills the nonAssociatedPartsList with all parts from the inventory, and then creates the id, name,
+     * stock, and price columns. The modifyProductAddPartTable is loaded with items from the nonAssociatedPartsList
+     * ObservableList. The table is then updated to show any changes in data to the user.
+     */
     private void generatePartsTable(){ ;
         nonAssociatedPartsList.setAll(inventory.getAllParts());
 
@@ -330,6 +379,12 @@ public class ModifyProductController implements Initializable {
         modifyProductAddPartTable.refresh();
     }
 
+    /**
+     * This function fills the modifyProductAssociatedArray with all parts associated with the respective product, and
+     * then creates the id, name, stock, and price columns. The modifyProductRemovePartTable is loaded with items from
+     * the modifyProductAssociatedArray ObservableList. The table is then updated to show any changes in data to the
+     * user.
+     */
     private void generateAssociatedPartsTable(){
         modifyProductAssociatedArray.setAll(product.getAllAssociatedParts());
 
@@ -343,6 +398,12 @@ public class ModifyProductController implements Initializable {
         modifyProductRemovePartTable.refresh();
     }
 
+    /**
+     * This function runs when the search parts text box is clicked. It empties all text in the search bar, and empties
+     * all results in the table with all parts.
+     *
+     * @param event
+     */
     @FXML
     void selectSearchPartTextBox(MouseEvent event) {
         // Set text in searchpartTextBox to ""
@@ -352,6 +413,12 @@ public class ModifyProductController implements Initializable {
 
     }
 
+    /**
+     * This function formats the price column to put a dollar sign before each double type number.
+     *
+     * @param <T>
+     * @return TableColumn
+     */
     private <T> TableColumn<T, Double> formatPrice(){
         TableColumn<T, Double> costColumn = new TableColumn("Price");
         costColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
@@ -371,7 +438,11 @@ public class ModifyProductController implements Initializable {
         return costColumn;
     }
 
-    // Tests if String input can be converted to an Integer
+    /**
+     * This function tests if String input can be converted to an Integer or not.
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringAnInt(String inputString) {
         try {
             Integer.parseInt(inputString);
@@ -382,7 +453,12 @@ public class ModifyProductController implements Initializable {
         }
     }
 
-    // Tests if String input can be converted to an Double
+    /**
+     * This function tests if String input can be converted to an Double.
+     *
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringADouble(String inputString) {
         try {
             Double.parseDouble(inputString);

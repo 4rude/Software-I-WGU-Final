@@ -28,7 +28,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
- * FXML Controller class
+ * FXML Add Product Controller class
  *
  * @author matt
  */
@@ -124,6 +124,13 @@ public class AddProductController implements Initializable {
 
     }
 
+    /**
+     * This function cancels the adding of a new product to the inventory. The user is prompted if they are SURE they
+     * want to cancel adding the product and potentially lose data. If they are sure they want to cancel they are
+     * redirected to the Main Screen page.
+     *
+     * @param event
+     */
     @FXML
     void cancelAddProduct(MouseEvent event) {
 
@@ -151,6 +158,12 @@ public class AddProductController implements Initializable {
         }
     }
 
+    /**
+     * This function removes a part from the list of parts associated with the selected product. It also confirms that
+     * the user wants to do so, at the risk of losing data.
+     *
+     * @param event
+     */
     @FXML
     void removeAssociatedPart(MouseEvent event) {
 
@@ -170,11 +183,6 @@ public class AddProductController implements Initializable {
                 // product.deleteAssociatedPart()
                 product.deleteAssociatedPart(addProductRemovePartTable.getSelectionModel().getSelectedItem().getId());
 
-                // Refresh original tempInventory parts list
-                partInventory.setAll(tempInventory.getAllParts());
-                addProductNewPartTable.setItems(partInventory);
-                addProductNewPartTable.refresh();
-
                 // Refresh the list of associated parts in the TableView
                 newProductAssociatedArray.setAll(product.getAllAssociatedParts());
                 addProductRemovePartTable.setItems(newProductAssociatedArray);
@@ -183,26 +191,40 @@ public class AddProductController implements Initializable {
         }
     }
 
+    /**
+     * This function searches the list of allParts within the inventory object. It will return the part if the name or
+     * id matches the string. After searching, it loads the TableView with the resulting parts.
+     *
+     * @param event
+     */
     @FXML
     void searchPart(MouseEvent event) {
         // If nothing is entered and search button is pressed, generate the parts table
         if(addProductPartSearchBar.getText() == "") { generatePartsTable(); }
         // Search partInventory for part by name
         else {
-            // Check if the user inputted an Part ID or Name
-            if (tempInventory.lookupPart(addProductPartSearchBar.getText()) == null) {
-                partInventory.setAll(tempInventory.lookupPart(Integer.parseInt(addProductPartSearchBar.getText())));
-            } else {
+            // Try to search for a part with the name entered in the text box
+            try {
                 partInventory.setAll(tempInventory.lookupPart(addProductPartSearchBar.getText()));
-            }
 
-            // Load the tableview with data from the tempInventory
-            addProductNewPartTable.setItems(partInventory);
-            addProductNewPartTable.refresh();
+
+                // Load the tableview with data from the tempInventory
+                addProductNewPartTable.setItems(partInventory);
+                addProductNewPartTable.refresh();
+
+            } catch (NullPointerException e) {
+                System.out.println(e + " is thrown because there is no part with that name.");
+            }
         }
 
     }
 
+    /**
+     * This function adds a part to the associatedParts list in the respective product object. It then refreshes the
+     * Table on the page with the Part newly added.
+     *
+     * @param event
+     */
     @FXML
     void addPartToAssociatedParts(MouseEvent event) {
 
@@ -222,16 +244,18 @@ public class AddProductController implements Initializable {
             addProductRemovePartTable.setItems(newProductAssociatedArray);
             addProductRemovePartTable.refresh();
 
-            // Refresh the tempInventory based addProductNewPartTable TableView
-//        generatePartsTable();
-//            partInventory.setAll(tempInventory.getAllParts());
-//            addProductNewPartTable.setItems(partInventory);
-//            addProductNewPartTable.refresh();
-
         }
 
     }
 
+    /**
+     * This function saves the new product to the inventory object. The values in the text boxes are added to temporary
+     * variables, and those variables are tested to determine if the data entered is valid or not. If it is all valid,
+     * the data is set to the member variables of the product object, and then is passed to the allProducts list in
+     * the inventory object. The user is then redirected to the Main Screen.
+     *
+     * @param event
+     */
     @FXML
     void saveProduct(MouseEvent event) {
         // Create temp variables for validation
@@ -316,14 +340,13 @@ public class AddProductController implements Initializable {
                 System.out.println(e);
             }
         }
-
-
-
-
-        // Set up constructor with user input and create product object
-        // Add product object to allParts ArrayList
     }
 
+    /**
+     * This function clears the search bar when pressed, and clears the table of parts at the same time.
+     *
+     * @param event
+     */
     @FXML
     void selectSearchPartTextBox(MouseEvent event) {
         // When pressed, clear text box
@@ -333,10 +356,22 @@ public class AddProductController implements Initializable {
 
     }
 
+    /**
+     * This function initializes the new id for the product, and generates the tables filled with parts.
+     *
+     */
     void initializeData() {
         // Counts the number of products and creates a auto generated ID for the new product
         counter = tempInventory.getAllProducts().size();
         counter += 1;
+
+        for (Product product: Inventory.getAllProducts()) {
+            int newId = (product.getId() / 100);
+            if (counter == newId) {
+                counter += 1;
+            }
+        }
+
         addProductIdAutoGen.setText(Integer.toString(counter) + "00");
 
         // Initialize the TableView for Parts
@@ -347,6 +382,12 @@ public class AddProductController implements Initializable {
 
     }
 
+
+    /**
+     * This function fills the partInventory with all parts from the inventory, and then creates the id, name, stock,
+     * and price columns. The addProductNewPartTable is loaded with items from the partInventory ObservableList. The
+     * table is then updated to show any changes in data to the user.
+     */
     private void generatePartsTable(){
         partInventory.setAll(tempInventory.getAllParts());
 
@@ -360,6 +401,11 @@ public class AddProductController implements Initializable {
         addProductNewPartTable.refresh();
     }
 
+    /**
+     * This function fills the newProductAssociatedArray with all parts associated with the respective product, and then
+     * creates the id, name, stock, and price columns. The addProductRemovePartTable is loaded with items from the
+     * newProductAssociatedArray ObservableList. The table is then updated to show any changes in data to the user.
+     */
     private void generateAssociatedPartsTable(){
         newProductAssociatedArray.setAll(product.getAllAssociatedParts());
 
@@ -373,8 +419,17 @@ public class AddProductController implements Initializable {
         addProductRemovePartTable.refresh();
     }
 
+
+    /**
+     * This function formats the price column to put a dollar sign before each double type number.
+     *
+     * @param <T>
+     * @return TableColumn
+     */
     private <T> TableColumn<T, Double> formatPrice(){
+        // Instantiate a new TableColumn object named Price
         TableColumn<T, Double> costColumn = new TableColumn("Price");
+        // Specifies how to populate all cells within the costColumn
         costColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
         // Format column values as US Currency symbol
         costColumn.setCellFactory((TableColumn<T, Double> column) -> {
@@ -392,7 +447,11 @@ public class AddProductController implements Initializable {
         return costColumn;
     }
 
-    // Tests if String input can be converted to an Integer
+    /**
+     * This function tests if String input can be converted to an Integer or not.
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringAnInt(String inputString) {
         try {
             Integer.parseInt(inputString);
@@ -403,7 +462,12 @@ public class AddProductController implements Initializable {
         }
     }
 
-    // Tests if String input can be converted to an Double
+    /**
+     * This function tests if String input can be converted to an Double.
+     *
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringADouble(String inputString) {
         try {
             Double.parseDouble(inputString);

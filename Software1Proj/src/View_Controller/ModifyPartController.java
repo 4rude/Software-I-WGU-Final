@@ -25,7 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
- * FXML Controller class
+ * FXML Modify Part Controller class
  *
  * @author matt
  */
@@ -88,6 +88,13 @@ public class ModifyPartController implements Initializable {
         setPartData();
     }
 
+    /**
+     * This function cancels the modification of a part in the inventory. The user is prompted if they are SURE they
+     * want to cancel modifying the part and potentially lose data. If they are sure they want to cancel they are
+     * redirected to the Main Screen page.
+     *
+     * @param event
+     */
     @FXML
     void cancelModifyPart(MouseEvent event) {
         confirmationAlert.setContentText("Are you sure you want to cancel modifying this part? Your data will be lost.");
@@ -114,6 +121,15 @@ public class ModifyPartController implements Initializable {
         }
     }
 
+    /**
+     * This function is the onclick event for the button to modify a part in the list of parts. The text box data is set
+     * to temporary variables, and the variables are then tested to see if the data is valid or invalid. If the data is
+     * all valid data entered, the part is tested to see if its Outsourced or In-House, and the data is added to the
+     * respective type of Part. The part is also check if it needs to be re-cast to a different type (ie. in-house to
+     * outsourced), and then that is done if needed. The part is then added to the allParts list in the Inventory.
+     *
+     * @param event
+     */
     @FXML
     void saveModifyPart(MouseEvent event) {
         // Add user input to temp variables
@@ -168,7 +184,8 @@ public class ModifyPartController implements Initializable {
         } else if (Integer.parseInt(tempInv) < Integer.parseInt(tempMin)) {
             validationErrorAlert.setContentText("The inventory cannot be less than the minimum number of products.");
             validationErrorAlert.show();
-        } else if (Integer.parseInt(tempInv) < 0 || Integer.parseInt(tempMax) < 0 || Integer.parseInt(tempMin) < 0 || Double.parseDouble(tempPrice) < 0.00) {
+        } else if (Integer.parseInt(tempInv) < 0 || Integer.parseInt(tempMax) < 0 || Integer.parseInt(tempMin) < 0 ||
+                Double.parseDouble(tempPrice) < 0.00) {
             validationErrorAlert.setContentText("None of the values entered can be less than 0.");
             validationErrorAlert.show();
         } else if (Integer.parseInt(tempMax) < Integer.parseInt(tempMin)) {
@@ -239,6 +256,12 @@ public class ModifyPartController implements Initializable {
         } // Else end
     } // Function End
 
+    /**
+     * This function is used to select the in-house radio button, and deselect the outsourced radio button. It also
+     * changes the last label text to "Machine ID."
+     *
+     * @param event
+     */
     @FXML
     void selectInhouse(MouseEvent event) {
         // Change machineIdCompanyNameLabel text to Machine ID
@@ -247,6 +270,12 @@ public class ModifyPartController implements Initializable {
         modifyPartOutsourcedRadioButton.setSelected(false);
     }
 
+    /**
+     * This function selects the outsourced radio button, deselects the in-house radio button, and sets the last label
+     * text to "Company Name."
+     *
+     * @param event
+     */
     @FXML
     void selectOutsourced(MouseEvent event) {
         // Change machineIdCompanyNameLabel text to CompanyName
@@ -255,17 +284,20 @@ public class ModifyPartController implements Initializable {
         modifyPartInhouseRadioButton.setSelected(false);
     }
 
+    /**
+     *  This function checks if the controller was given a Part with the type in-house or outsourced. Once that is
+     *  determined, The radio buttons and labels are set to their proper type, and the text-boxes are filled with the
+     *  data of the given Part.
+     *
+     */
     void setPartData() {
         // Check if part selected to modify is InHouse class or Outsourced class, and set radio buttons, text
         // boxes, and labels accordingly
         if(part instanceof InHouse) {
-
-            System.out.println("In house part");
             modifyPartInhouseRadioButton.setSelected(true);
             modifyPartOutsourcedRadioButton.setSelected(false);
             machineIdCompanyNameTextBox.setText(Integer.toString(((InHouse) part).getMachineId()));
         } else if(part instanceof Outsourced){
-            System.out.println("Outsourced part");
             modifyPartInhouseRadioButton.setSelected(false);
             modifyPartOutsourcedRadioButton.setSelected(true);
             machineIdCompanyNameLabel.setText("Company Name");
@@ -280,10 +312,13 @@ public class ModifyPartController implements Initializable {
         modifyPartMaxTextBox.setText(Integer.toString(part.getMax()));
         ModifyPartMinTextBox.setText(Integer.toString(part.getMin()));
 
-
     }
 
-    // Tests if String input can be converted to an Integer
+    /**
+     * This function tests if String input can be converted to an Integer or not.
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringAnInt(String inputString) {
         try {
             Integer.parseInt(inputString);
@@ -294,7 +329,12 @@ public class ModifyPartController implements Initializable {
         }
     }
 
-    // Tests if String input can be converted to an Double
+    /**
+     * This function tests if String input can be converted to an Double.
+     *
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringADouble(String inputString) {
         try {
             Double.parseDouble(inputString);

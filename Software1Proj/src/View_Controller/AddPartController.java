@@ -26,14 +26,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
- * FXML Controller class
+ * FXML Add Part Controller class
  *
  * @author matt
  */
 public class AddPartController implements Initializable {
 
+    // Initialize the inventory object
     private final Inventory inventory;
 
+    // JavaFX XML objects used to represent the GUI
     @FXML
     private RadioButton addPartInhouseRadioButton;
 
@@ -70,7 +72,9 @@ public class AddPartController implements Initializable {
     @FXML
     private Button addPartCancelButton;
 
+    // Creates the counter integer to be used in generating an ID
     private int counter;
+    // Alert Dialog Box objects used for confirmation and error handling
     private final Alert validationErrorAlert = new Alert(Alert.AlertType.ERROR);
     private final Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
 
@@ -83,15 +87,19 @@ public class AddPartController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
         initializeData();
     }
 
+
+    /**
+     * This function creates a new ID for a newly created Part. It also sets the radio buttons to Inhouse as the
+     * default.
+     */
     private void initializeData(){
         // set the id to the next available id, can be random
         // Get list of part id's, determine highest. Add one and set to id variable.
         // Set id to addPartIdAutoGenTextBox
-        // Auto selects the inHouse radio button
+        // Auto selects the inHouse radio button, and deselects the Outsourced radio button
         ArrayList countArray = new ArrayList(Inventory.getAllParts());
         counter = countArray.size();
         counter += 1;
@@ -107,6 +115,14 @@ public class AddPartController implements Initializable {
 
     }
 
+    /**
+     * This function is the onclick event for the button to add the new part to list of parts. The text box data is set
+     * to temporary variables, and the variables are then tested to see if the data is valid or invalid. If the data is
+     * all valid data entered, the part is tested to see if its Outsourced or In-House, and the data is added to the
+     * respective type of Part. The part is then added to the allParts list in the Inventory.
+     *
+     * @param event
+     */
     @FXML
     void addPart(MouseEvent event)  {
         // Add user input to temp variables
@@ -225,6 +241,13 @@ public class AddPartController implements Initializable {
 
     }
 
+
+    /**
+     * This function cancels adding a new part to the inventory. A confirmation dialog box is pops up, and verifies that
+     * the user does indeed want to NOT add a new part to the inventory. The function then returns the user to the
+     * Main Screen.
+     * @param event
+     */
     @FXML
     void cancelAddPart(MouseEvent event) {
         confirmationAlert.setContentText("Are you sure you want to cancel adding a part? Your data will be lost.");
@@ -251,6 +274,13 @@ public class AddPartController implements Initializable {
         }
     }
 
+
+    /**
+     * This function is an OnClick event for the In-House radio button. When it is selected, the other radio button is
+     * deselected and the last label in the list of labels/text boxes is set to Machine ID.
+     *
+     * @param event
+     */
     @FXML
     void selectInhouseRadioButton(MouseEvent event) {
         // Selects the InHouse radio button
@@ -261,6 +291,11 @@ public class AddPartController implements Initializable {
         companyNameMachineIdLabel.setText("Machine ID");
     }
 
+    /**
+     * This function is an OnClick event for the Outsourced radio button. When it is selected, the other radio button is
+     * deselected and the last label in the list of labels/text boxes is set to Company Name.
+     * @param event
+     */
     @FXML
     void selectOutsourcedRadioButton(MouseEvent event) {
         // Selects the Outsourced radio button
@@ -271,7 +306,11 @@ public class AddPartController implements Initializable {
         companyNameMachineIdLabel.setText("Company Name");
     }
 
-    // Tests if String input can be converted to an Integer
+    /**
+     * This function tests if String input can be converted to an Integer or not.
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringAnInt(String inputString) {
         try {
             Integer.parseInt(inputString);
@@ -282,7 +321,13 @@ public class AddPartController implements Initializable {
         }
     }
 
-    // Tests if String input can be converted to an Double
+
+    /**
+     * This function tests if String input can be converted to an Double.
+     *
+     * @param inputString
+     * @return boolean
+     */
     public boolean isAStringADouble(String inputString) {
         try {
             Double.parseDouble(inputString);

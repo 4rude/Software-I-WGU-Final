@@ -17,7 +17,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
-import javafx.fxml.LoadException;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -27,7 +26,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
- * FXML Controller class
+ * FXML Main Screen Controller class
  *
  * @author matt
  */
@@ -97,7 +96,7 @@ public class MainScreenController implements Initializable {
     private final ObservableList<Part> partInventorySearch = FXCollections.observableArrayList();
     private final ObservableList<Product> productInventorySearch = FXCollections.observableArrayList();
     private final Alert deleteAlert = new Alert(Alert.AlertType.CONFIRMATION);
-    private final Alert errorAlert = new Alert(Alert.AlertType.CONFIRMATION);
+    private final Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 
     public MainScreenController(Inventory inventory){
         this.inventory = inventory;
@@ -113,6 +112,11 @@ public class MainScreenController implements Initializable {
 
     }
 
+    /**
+     * This function fills the partInventory with all parts from the inventory, and then creates the id, name, stock,
+     * and price columns. The mainScreenPartsTable is loaded with items from the partInventory ObservableList. The
+     * table is then updated to show any changes in data to the user.
+     */
     private void generatePartsTable(){
         partInventory.setAll(Inventory.getAllParts());
 
@@ -126,6 +130,11 @@ public class MainScreenController implements Initializable {
         mainScreenPartsTable.refresh();
     }
 
+    /**
+     * This function fills the productInventory with all products from the inventory object, and then
+     * creates the id, name, stock, and price columns. The mainScreenProductsTable is loaded with items from the
+     * productInventory ObservableList. The table is then updated to show any changes in data to the user.
+     */
     private void generateProductsTable() {
         productInventory.setAll(Inventory.getAllProducts());
 
@@ -139,6 +148,12 @@ public class MainScreenController implements Initializable {
         mainScreenProductsTable.refresh();
     }
 
+    /**
+     * This function happens on click and routes the user to the Add Part Controller, where they are able to create and add a part to the
+     * inventory object.
+     *
+     * @param event
+     */
     @FXML
     void addPartToInv(MouseEvent event) {
      try {
@@ -157,6 +172,12 @@ public class MainScreenController implements Initializable {
      }
     }
 
+    /**
+     * This function, when clicked, routes the user to the Add Product controller, where they are able to create and add
+     * a new product to the allProducts list in the "globally" used inventory object.
+     *
+     * @param event
+     */
     @FXML
     void addProductToInv(MouseEvent event) {
         try {
@@ -175,6 +196,12 @@ public class MainScreenController implements Initializable {
         }
     }
 
+    /**
+     * This function deletes a Part that is selected from the Part table. The user is asked to confirm that they do
+     * indeed want to delete the selected Part.
+     *
+     * @param event
+     */
     @FXML
     void deletePartInInv(MouseEvent event) {
         // Get selected part from TableView
@@ -190,10 +217,24 @@ public class MainScreenController implements Initializable {
             // Remove the selected part from the allParts ArrayList
             Inventory.deletePart(selectedPart);
             // Refresh the list of parts in the TableView
-            generatePartsTable();
+            partInventory.setAll(Inventory.getAllParts());
+            mainScreenPartsTable.setItems(partInventory);
+            mainScreenPartsTable.refresh();
+
         }
     }
 
+
+    /**
+     * This function deletes a part from the inventory object. It also confirms that the user wants to do so.
+     *
+     * One piece of functionality I would add in an updated version of this application would be for the option to
+     * delete all parts associated with this (selected) product. The button could be added to a Dialog box, and the user
+     * could select that they want all parts deleted, instead of having to click modify product, then individually
+     * select each part to delete and press "OK" to confirm each part they want to delete.
+     *
+     * @param event
+     */
     @FXML
     void deleteProductInInv(MouseEvent event) {
         // Get selected product from TableView
@@ -216,7 +257,6 @@ public class MainScreenController implements Initializable {
                 mainScreenProductsTable.setItems(productInventory);
                 mainScreenProductsTable.refresh();
 
-                //generateProductsTable();
             }
         } else { // If a product does have parts associated with
             errorAlert.setContentText("You cannot delete a product that has a part associated with it.");
@@ -225,14 +265,25 @@ public class MainScreenController implements Initializable {
 
     }
 
+    /**
+     * This function closes the application and makes sure any code still running is shut down.
+     *
+     * @param event
+     */
     @FXML
     void exitMainScreen(MouseEvent event) {
-        // Ends the JavaFX App
+        // Ends the JavaFX App. Preferred way to shut down a JavaFX application per the Oracle Docs.
         Platform.exit();
-        // Ends the JVM
+        // Shuts down the JVM.
         System.exit(0);
     }
 
+    /**
+     * This function, when the button is associated with it is clicked, routes the user to a new page which then allows
+     * the user to modify the part selected from the Part table on the Main Screen.
+     *
+     * @param event
+     */
     @FXML
     void modifyPartInInv(MouseEvent event) {
         try {
@@ -272,6 +323,12 @@ public class MainScreenController implements Initializable {
         }
     }
 
+    /**
+     * This function, when the button is associated with it is clicked, routes the user to a new page which then allows
+     * the user to modify the Product selected from the Product table on the Main Screen.
+     *
+     * @param event
+     */
     @FXML
     void modifyProductInInv(MouseEvent event) {
         try {
@@ -294,12 +351,15 @@ public class MainScreenController implements Initializable {
         }
     }
 
+    /**
+     * This function searches all the Part names (in the inventory) for a name matching what was typed in to the search
+     * bar.
+     *
+     * @param event
+     */
     @FXML
     void searchInvParts(MouseEvent event) {
-        // Get selected part from TableView
-        // Use inventory methods to search both id and name for result
-        // If result isn't empty, update TableView to show only that part
-        // Else, do nothing
+        // If the search bar is empty, return all the parts
         if (invPartSearchBar.getText() == "") {
             partInventory.setAll(Inventory.getAllParts());
 
@@ -310,26 +370,30 @@ public class MainScreenController implements Initializable {
             mainScreenPartsTable.getColumns().addAll(costColumn);
 
             mainScreenPartsTable.setItems(partInventory);
+        // If the search bar is not empty, lookup the part name by using the text provided
         } else {
-            partInventorySearch.setAll(Inventory.lookupPart(invPartSearchBar.getText()));
+            try {
+                partInventorySearch.setAll(Inventory.lookupPart(invPartSearchBar.getText()));
 
-            invPartIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            invPartNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-            invPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
-            TableColumn<Part, Double> costColumn = formatPrice();
-            mainScreenPartsTable.getColumns().addAll(costColumn);
+                invPartIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+                invPartNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+                invPartInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+                TableColumn<Part, Double> costColumn = formatPrice();
+                mainScreenPartsTable.getColumns().addAll(costColumn);
 
-            mainScreenPartsTable.setItems(partInventorySearch);
+                mainScreenPartsTable.setItems(partInventorySearch);
+            } catch (NullPointerException e) {
+            System.out.println(e + " is thrown because there is no part with that name.");
+            }
+
         }
+        // Either way refresh the Table to reflect the current state of data
         mainScreenPartsTable.refresh();
     }
 
     @FXML
     void searchInvProducts(MouseEvent event) {
-        // Get selected products from TableView
-        // Use inventory methods to search both id and name for result
-        // If result isn't empty, update TableView to show only that product
-        // Else, do nothing
+        // If the search bar is empty, return all the products
         if (invProductsSearchBar.getText() == "") {
             productInventory.setAll(Inventory.getAllProducts());
 
@@ -340,21 +404,34 @@ public class MainScreenController implements Initializable {
             mainScreenProductsTable.getColumns().addAll(costColumn);
 
             mainScreenProductsTable.setItems(productInventory);
+        // If the search bar is not empty, lookup the product name by using the text provided
         } else {
-            productInventorySearch.setAll(Inventory.lookupProduct(invProductsSearchBar.getText()));
+            try {
+                productInventorySearch.setAll(Inventory.lookupProduct(invProductsSearchBar.getText()));
 
-            invProductIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-            invProductNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-            invProductInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
-            TableColumn<Product, Double> costColumn = formatPrice();
-            mainScreenProductsTable.getColumns().addAll(costColumn);
+                invProductIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+                invProductNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+                invProductInventoryLevelColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+                TableColumn<Product, Double> costColumn = formatPrice();
+                mainScreenProductsTable.getColumns().addAll(costColumn);
 
-            mainScreenProductsTable.setItems(productInventorySearch);
+                mainScreenProductsTable.setItems(productInventorySearch);
+            } catch (NullPointerException e) {
+                System.out.println(e + " is thrown because there is no product with that name.");
+            }
+
         }
+        // Either way refresh the Table to reflect the current state of data
         mainScreenProductsTable.refresh();
 
     }
 
+    /**
+     * This function formats the price column to put a dollar sign before each double type number.
+     *
+     * @param <T>
+     * @return TableColumn
+     */
     private <T> TableColumn<T, Double> formatPrice(){
         TableColumn<T, Double> costColumn = new TableColumn("Price");
         costColumn.setCellValueFactory(new PropertyValueFactory<>("Price"));
@@ -374,6 +451,10 @@ public class MainScreenController implements Initializable {
         return costColumn;
     }
 
+    /**
+     * This function clears the Part search bar, and it empties all results in the Main Screen Parts table.
+     * @param event
+     */
     @FXML
     void selectSearchPartsTextBox(MouseEvent event) {
         // When selected, set text box to ""
@@ -382,6 +463,10 @@ public class MainScreenController implements Initializable {
         mainScreenPartsTable.getItems().clear();
     }
 
+    /**
+     * This function clears the Products search bar, and empties the results in the Main Screen Products table.
+     * @param event
+     */
     @FXML
     void selectSearchProductsTextBox(MouseEvent event) {
         // When selected, set text box to ""
